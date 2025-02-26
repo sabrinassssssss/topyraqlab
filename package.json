@@ -1,0 +1,18 @@
+npm install
+{
+  "name": "my-smart-garden",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "server": "node server.js"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "latest",
+    "express": "^4.17.1",
+    "cors": "^2.8.5"
+  }
+}
