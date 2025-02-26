@@ -1,0 +1,26 @@
+body {
+    background-color: #A8C0A0;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    padding: 20px;
+}
+
+.btn {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #D4A373;
+    border-color: #D4A373;
+}
+
+.btn-success {
+    background-color: #A3B18A;
+    border-color: #A3B18A;
+}
