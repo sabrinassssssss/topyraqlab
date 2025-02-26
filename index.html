@@ -6,58 +6,21 @@
     <title>Мониторинг растений</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { 
-            background-color: #f4f4f4; 
-            font-family: Arial, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-        }
-
-        .navbar { 
-            background: #2c6e49; 
-            padding: 15px;
-        }
-
-        .navbar-brand, .nav-link { 
-            color: white !important; 
-            font-weight: bold;
-        }
-
-        .section { 
-            padding: 50px 20px; 
-            text-align: center; 
-        }
-
-        video { 
-            width: 100%; 
-            max-width: 400px; 
-            border-radius: 10px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .calendar-table { 
-            width: 80%; 
-            margin: auto; 
-            background: white; 
-            border-collapse: collapse; 
-        }
-
-        th, td { 
-            border: 1px solid black; 
-            padding: 10px; 
-            text-align: center; 
-        }
-
-        .sensor-box { 
-            background: white; 
-            padding: 20px; 
-            margin-top: 20px; 
-            border-radius: 10px; 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
+        body { background-color: #f4f4f4; font-family: Arial, sans-serif; }
+        .navbar { background: #2c6e49; padding: 15px; }
+        .navbar-brand, .nav-link { color: white !important; font-weight: bold; }
+        .section { padding: 50px 20px; text-align: center; }
+        video { width: 100%; max-width: 400px; border-radius: 10px; }
+        .calendar-table { width: 90%; margin: auto; background: white; border-collapse: collapse; }
+        .calendar-table td { padding: 15px; text-align: center; cursor: pointer; border-radius: 50%; }
+        .calendar-table .marked { background: #ff758c; color: white; font-weight: bold; }
+        .sensor-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .btn-custom { background: #2c6e49; color: white; }
     </style>
 </head>
 <body>
+
+    <!-- Навигация -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#">Plant Monitor</a>
@@ -65,11 +28,11 @@
                 <li class="nav-item"><a class="nav-link" href="#camera">Камера</a></li>
                 <li class="nav-item"><a class="nav-link" href="#analysis">Анализ</a></li>
                 <li class="nav-item"><a class="nav-link" href="#calendar">Календарь</a></li>
-                <li class="nav-item"><a class="nav-link" href="#sensor">Датчик</a></li>
             </ul>
         </div>
     </nav>
 
+    <!-- Камера -->
     <section id="camera" class="section">
         <h2>Камера</h2>
         <video id="camera-feed" autoplay></video>
@@ -77,39 +40,61 @@
         <canvas id="snapshot" style="display:none;"></canvas>
     </section>
 
+    <!-- Датчик и анализ -->
     <section id="analysis" class="section">
-        <h2>Рекомендации</h2>
+        <h2>Данные датчика</h2>
+        <div class="sensor-box">
+            <p><strong>Влажность почвы:</strong> <span id="sensorData">Нет данных</span>%</p>
+            <button class="btn btn-custom" onclick="connectToDevice()">Подключить датчик</button>
+        </div>
+        <h2 class="mt-4">Рекомендации</h2>
         <p id="advice">Здесь появятся советы...</p>
     </section>
 
+    <!-- Календарь полива -->
     <section id="calendar" class="section">
         <h2>Календарь полива</h2>
-        <button class="btn btn-primary mb-3" onclick="addWateringRecord()">Добавить запись</button>
         <table class="calendar-table">
-            <tr>
-                <th>Дата</th>
-                <th>Время</th>
-            </tr>
             <tbody id="calendar-body"></tbody>
         </table>
-    </section>
-
-    <section id="sensor" class="section">
-        <h2>Данные с датчика</h2>
-        <button class="btn btn-info mb-3" onclick="connectToDevice()">Подключить устройство</button>
-        <div class="sensor-box">
-            <h4>Уровень влажности:</h4>
-            <p id="sensorData">Нет данных</p>
-        </div>
+        <button class="btn btn-primary mt-3" onclick="addWateringRecord()">Отметить полив</button>
     </section>
 
     <script>
+        // Включение камеры
+        <button class="btn btn-secondary mt-2" onclick="switchCamera()">Переключить камеру</button>
+let useFrontCamera = false; // По умолчанию основная камера
+
+function startCamera() {
+    let constraints = {
+        video: { 
+            facingMode: useFrontCamera ? "user" : "environment" 
+        }
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+        let videoElement = document.getElementById('camera-feed');
+        videoElement.srcObject = stream;
+    }).catch(error => {
+        alert('Ошибка доступа к камере! Проверьте настройки браузера.');
+    });
+}
+
+// Переключение между фронтальной и основной камерой
+function switchCamera() {
+    useFrontCamera = !useFrontCamera;
+    startCamera();
+}
+
+// Запуск камеры при загрузке страницы
+window.onload = startCamera;
         navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
             document.getElementById('camera-feed').srcObject = stream;
         }).catch(error => {
             alert('Ошибка доступа к камере! Проверьте настройки браузера.');
         });
 
+        // Фото с камеры
         function captureImage() {
             let video = document.getElementById('camera-feed');
             let canvas = document.getElementById('snapshot');
@@ -120,40 +105,85 @@
             alert("Фото сделано!");
         }
 
-        function addWateringRecord() {
-            let table = document.getElementById("calendar-body");
-            let row = table.insertRow();
-            let dateCell = row.insertCell(0);
-            let timeCell = row.insertCell(1);
-            let now = new Date();
-            dateCell.innerText = now.toLocaleDateString();
-            timeCell.innerText = now.toLocaleTimeString();
+        // Календарь (создание)
+        function generateCalendar() {
+            let calendarBody = document.getElementById("calendar-body");
+            calendarBody.innerHTML = "";
+            let today = new Date();
+            let daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+            let row = document.createElement("tr");
+            for (let i = 1; i <= daysInMonth; i++) {
+                let cell = document.createElement("td");
+                cell.innerText = i;
+                cell.onclick = () => markDay(i);
+                if (localStorage.getItem(`watering-${i}`)) {
+                    cell.classList.add("marked");
+                }
+                row.appendChild(cell);
+                if (i % 7 === 0 || i === daysInMonth) {
+                    calendarBody.appendChild(row);
+                    row = document.createElement("tr");
+                }
+            }
         }
 
+        // Отметка полива
+        function addWateringRecord() {
+            let today = new Date().getDate();
+            localStorage.setItem(`watering-${today}`, "done");
+            generateCalendar();
+        }
+
+        // Пометка дня полива
+        function markDay(day) {
+            if (localStorage.getItem(`watering-${day}`)) {
+                localStorage.removeItem(`watering-${day}`);
+            } else {
+                localStorage.setItem(`watering-${day}`, "done");
+            }
+            generateCalendar();
+        }
+
+        // Подключение к датчику (через Bluetooth)
         async function connectToDevice() {
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true,
-                    optionalServices: ['battery_service']
+                    optionalServices: ["battery_service"]
                 });
 
                 const server = await device.gatt.connect();
-                const service = await server.getPrimaryService('battery_service');
-                const characteristic = await service.getCharacteristic('battery_level');
+                const service = await server.getPrimaryService("battery_service");
+                const characteristic = await service.getCharacteristic("battery_level");
 
-                characteristic.startNotifications();
-                characteristic.addEventListener('characteristicvaluechanged', event => {
+                characteristic.addEventListener("characteristicvaluechanged", (event) => {
                     const value = event.target.value.getUint8(0);
-                    document.getElementById('sensorData').innerText = value + "%";
+                    document.getElementById("sensorData").innerText = value;
+                    generateAdvice(value);
                 });
 
-                alert("Устройство подключено!");
-
+                await characteristic.startNotifications();
             } catch (error) {
                 console.error("Ошибка подключения:", error);
-                alert("Не удалось подключиться к устройству.");
             }
         }
+
+        // Генерация рекомендаций
+        function generateAdvice(humidity) {
+            let advice = document.getElementById("advice");
+            if (humidity > 70) {
+                advice.innerText = "Почва слишком влажная, полив не нужен.";
+            } else if (humidity < 30) {
+                advice.innerText = "Почва сухая, требуется полив!";
+            } else {
+                advice.innerText = "Оптимальная влажность. Полив пока не требуется.";
+            }
+        }
+
+        // Генерация календаря при загрузке
+        window.onload = generateCalendar;
     </script>
+
 </body>
 </html>
