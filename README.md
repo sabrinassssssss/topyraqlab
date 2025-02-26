@@ -1,14 +1,3 @@
-my-smart-garden/
-│── public/
-│   ├── index.html
-│── src/
-│   ├── App.js
-│   ├── index.js
-│── package.json
-│── .gitignore
-│── README.md
-import React, { useState } from "react";
-
 function SmartGardenApp() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [reminders, setReminders] = useState({});
