@@ -81,9 +81,15 @@
 
     <section id="camera">
         <h2>Камера</h2>
-        <video id="camera-feed" autoplay></video>
+        <video id="camera-feed" autoplay playsinline></video>
         <button class="btn" onclick="captureImage()">Сделать фото</button>
         <canvas id="snapshot" style="display:none;"></canvas>
+        <img id="captured-image" style="display:none; max-width: 100%; margin-top: 10px;" />
+    </section>
+
+    <section id="sensor">
+        <h2>Датчик влажности</h2>
+        <p id="sensor-data">Загрузка...</p>
     </section>
 
     <section id="calendar">
@@ -106,6 +112,9 @@
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            let img = document.getElementById('captured-image');
+            img.src = canvas.toDataURL('image/png');
+            img.style.display = 'block';
             alert("Фото сделано!");
         }
 
@@ -127,6 +136,13 @@
         function setReminder() {
             alert("Напоминание о поливе установлено!");
         }
+
+        function updateSensor() {
+            let value = Math.floor(Math.random() * 100);
+            document.getElementById("sensor-data").innerText = "Влажность почвы: " + value + "%";
+        }
+        setInterval(updateSensor, 3000);
     </script>
 </body>
 </html>
+
