@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopyraqLab – Умный Сад</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="logo-container">
+        <img src="IMG_0849.jpg" alt="TopyraqLab Logo" class="logo">
+    </div>
+
+    <div class="title">TopyraqLab – <span id="site-title">Умный Сад</span></div>
+
+    <nav class="navbar">
+        <a href="#camera">Камера</a>
+        <a href="#sensor">Датчик</a>
+        <a href="#calendar">Календарь</a>
+        <a href="#advice">Советы</a>
+        <select id="language" onchange="changeLanguage()">
+            <option value="ru">Русский</option>
+            <option value="kk">Қазақша</option>
+            <option value="en">English</option>
+        </select>
+    </nav>
+
+    <section id="camera">
+        <h2>Камера</h2>
+        <video id="camera-feed" autoplay></video>
+        <button class="btn" onclick="captureImage()">Сделать фото</button>
+        <canvas id="snapshot" style="display:none;"></canvas>
+    </section>
+
+    <section id="sensor">
+        <h2>Датчик влажности</h2>
+        <p id="sensor-data">Загрузка...</p>
+    </section>
+
+    <section id="calendar">
+        <h2>Календарь полива</h2>
+        <div id="calendar-container"></div>
+        <button class="btn" onclick="setReminder()">Напомнить о поливе</button>
+    </section>
+
+    <section id="advice">
+        <h2>Советы по уходу</h2>
+        <p id="advice-text">Выберите растение, чтобы получить совет.</p>
+        <select id="plant-select" onchange="getAdvice()">
+            <option value="default">Выберите растение</option>
+            <option value="rose">Роза</option>
+            <option value="cactus">Кактус</option>
+            <option value="orchid">Орхидея</option>
+        </select>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
