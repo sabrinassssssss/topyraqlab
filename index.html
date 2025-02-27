@@ -105,78 +105,77 @@
 
     <section id="advice">
         <h2>Советы по уходу</h2>
-        <p id="advice-text">Выберите растение, чтобы получить совет.</p>
-        <select id="plant-select" onchange="getAdvice()">
-            <option value="default">Выберите растение</option>
-            <option value="rose">Роза</option>
-            <option value="cactus">Кактус</option>
-            <option value="orchid">Орхидея</option>
-        </select>
+        <p id="advice-text">Введите описание проблемы или загрузите фото для анализа.</p>
+        <textarea id="problem-description" rows="3" placeholder="Опишите проблему"></textarea>
+        <button class="btn" onclick="getAIAdvice()">Получить совет</button>
+        <p id="ai-advice"></p>
     </section>
 
     <script>
-        function uploadImage(event) {
-            let img = document.getElementById('captured-image');
-            img.src = URL.createObjectURL(event.target.files[0]);
-            img.style.display = 'block';
-        }
+        async function analyzeImage() {
+            const imageElement = document.getElementById("captured-image");
+            const apiKey = "ТОТ_САМЫЙ_API_КЛЮЧ";  // 🔥 Замени на свой API-ключ
 
-        function analyzeImage() {
-            let img = document.getElementById('captured-image');
-            if (!img.src) {
-                alert("Сначала загрузите изображение!");
+            if (!imageElement.src) {
+                alert("Сначала загрузите фото!");
                 return;
             }
-            let resultText = document.getElementById('analysis-result');
-            resultText.innerText = "Анализ изображения...";
 
-            // Вызов Google Cloud Vision API (заглушка)
-            setTimeout(() => {
-                resultText.innerText = "Возможная болезнь: мучнистая роса. Рекомендуется обработка фунгицидом.";
-            }, 2000);
+            const base64Image = await toBase64(imageElement);
+
+            const requestBody = {
+                requests: [
+                    {
+                        image: { content: base64Image },
+                        features: [{ type: "LABEL_DETECTION", maxResults: 5 }]
+                    }
+                ]
+            };
+
+            const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+                method: "POST",
+                body: JSON.stringify(requestBody),
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const result = await response.json();
+            displayAnalysisResult(result);
         }
 
-        function generateCalendar() {
-            let calendarGrid = document.getElementById("calendar-grid");
-            calendarGrid.innerHTML = "";
-            let daysInMonth = 30;
-            for (let i = 1; i <= daysInMonth; i++) {
-                let day = document.createElement("div");
-                day.innerText = i;
-                day.onclick = function() {
-                    this.classList.toggle("selected");
-                };
-                calendarGrid.appendChild(day);
+        function displayAnalysisResult(result) {
+            const analysisResult = document.getElementById("analysis-result");
+            const labels = result.responses[0]?.labelAnnotations || [];
+
+            if (labels.length > 0) {
+                analysisResult.innerHTML = "Возможные проблемы: <br>" + labels.map(label => label.description).join(", ");
+            } else {
+                analysisResult.innerText = "Не удалось определить проблему.";
             }
         }
-        generateCalendar();
 
-        function setReminder() {
-            alert("Напоминание о поливе установлено!");
+        async function toBase64(img) {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            ctx.drawImage(img, 0, 0);
+            return canvas.toDataURL("image/jpeg").split(",")[1];  
         }
 
-        function getAdvice() {
-            let plant = document.getElementById("plant-select").value;
-            let adviceText = document.getElementById("advice-text");
-            let advice = {
-                "rose": "Розы любят солнечный свет и регулярный полив.",
-                "cactus": "Кактусы не нуждаются в частом поливе, поливайте раз в 2 недели.",
-                "orchid": "Орхидеи требуют высокой влажности и рассеянного света."
-            };
-            adviceText.innerText = advice[plant] || "Выберите растение.";
-        }
-
-        function changeLanguage() {
-            let lang = document.getElementById("language").value;
-            let translations = {
-                "ru": { "camera": "Камера", "sensor": "Датчик", "calendar": "Календарь полива", "advice": "Советы" },
-                "kk": { "camera": "Камера", "sensor": "Датчик", "calendar": "Суару күнтізбесі", "advice": "Кеңестер" },
-                "en": { "camera": "Camera", "sensor": "Sensor", "calendar": "Watering Calendar", "advice": "Tips" }
-            };
-            document.getElementById("nav-camera").innerText = translations[lang].camera;
-            document.getElementById("nav-sensor").innerText = translations[lang].sensor;
-            document.getElementById("nav-calendar").innerText = translations[lang].calendar;
-            document.getElementById("nav-advice").innerText = translations[lang].advice;
+        function getAIAdvice() {
+            let description = document.getElementById("problem-description").value;
+            let adviceText = document.getElementById("ai-advice");
+            
+            if (!description) {
+                adviceText.innerText = "Введите описание проблемы для получения совета.";
+                return;
+            }
+            
+            adviceText.innerText = "Генерация совета...";
+            
+            setTimeout(() => {
+                adviceText.innerText = "Ваше растение может страдать от нехватки воды. Рекомендуется увлажнение почвы и проверка освещения.";
+            }, 2000);
         }
     </script>
 </body>
