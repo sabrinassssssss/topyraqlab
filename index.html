@@ -39,6 +39,25 @@
             display: flex;
             justify-content: center;
         }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: auto;
+            background: #3E4A34;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .calendar div {
+            padding: 10px;
+            background: #D4A373;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            color: black;
+        }
+        .selected { background: #E9C46A; color: white; }
     </style>
 </head>
 <body>
@@ -67,26 +86,12 @@
         <canvas id="snapshot" style="display:none;"></canvas>
     </section>
 
-    <section id="sensor">
-        <h2>Датчик влажности</h2>
-        <p id="sensor-data">Загрузка...</p>
-    </section>
-
     <section id="calendar">
         <h2>Календарь полива</h2>
-        <div id="calendar-container"></div>
+        <div class="calendar-container">
+            <div class="calendar" id="calendar-grid"></div>
+        </div>
         <button class="btn" onclick="setReminder()">Напомнить о поливе</button>
-    </section>
-
-    <section id="advice">
-        <h2>Советы по уходу</h2>
-        <p id="advice-text">Выберите растение, чтобы получить совет.</p>
-        <select id="plant-select" onchange="getAdvice()">
-            <option value="default">Выберите растение</option>
-            <option value="rose">Роза</option>
-            <option value="cactus">Кактус</option>
-            <option value="orchid">Орхидея</option>
-        </select>
     </section>
 
     <script>
@@ -104,41 +109,23 @@
             alert("Фото сделано!");
         }
 
-        function updateSensor() {
-            let value = Math.floor(Math.random() * 100);
-            document.getElementById("sensor-data").innerText = "Влажность почвы: " + value + "%";
+        function generateCalendar() {
+            let calendarGrid = document.getElementById("calendar-grid");
+            calendarGrid.innerHTML = "";
+            let daysInMonth = 30;
+            for (let i = 1; i <= daysInMonth; i++) {
+                let day = document.createElement("div");
+                day.innerText = i;
+                day.onclick = function() {
+                    this.classList.toggle("selected");
+                };
+                calendarGrid.appendChild(day);
+            }
         }
-        setInterval(updateSensor, 3000);
+        generateCalendar();
 
         function setReminder() {
             alert("Напоминание о поливе установлено!");
-        }
-
-        function getAdvice() {
-            let plant = document.getElementById("plant-select").value;
-            let adviceText = document.getElementById("advice-text");
-            
-            let advice = {
-                "rose": "Розы любят солнечный свет и регулярный полив.",
-                "cactus": "Кактусы не нуждаются в частом поливе, поливайте раз в 2 недели.",
-                "orchid": "Орхидеи требуют высокой влажности и рассеянного света."
-            };
-
-            adviceText.innerText = advice[plant] || "Выберите растение.";
-        }
-
-        function changeLanguage() {
-            let lang = document.getElementById("language").value;
-            let translations = {
-                "ru": { "camera": "Камера", "sensor": "Датчик", "calendar": "Календарь полива", "advice": "Советы" },
-                "kk": { "camera": "Камера", "sensor": "Датчик", "calendar": "Суару күнтізбесі", "advice": "Кеңестер" },
-                "en": { "camera": "Camera", "sensor": "Sensor", "calendar": "Watering Calendar", "advice": "Tips" }
-            };
-            
-            document.getElementById("nav-camera").innerText = translations[lang].camera;
-            document.getElementById("nav-sensor").innerText = translations[lang].sensor;
-            document.getElementById("nav-calendar").innerText = translations[lang].calendar;
-            document.getElementById("nav-advice").innerText = translations[lang].advice;
         }
     </script>
 </body>
